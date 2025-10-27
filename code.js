@@ -16,34 +16,31 @@ function processSection(section, data, hasTeknisi2) {
   section.replaceText("<<Lokasi Tugas>>", data.lokasitugas || "");
   let nikmanajer = "";
   let jabatanmanajer = "";
-  if (data.namamanajer == "FX. SIGIT EKO PRAYOGO")
-  {
+  if (data.namamanajer == "FX. SIGIT EKO PRAYOGO") {
     nikmanajer = "906535";
     jabatanmanajer = "Mgr Shared Service Pekanbaru";
   }
-  if (data.namamanajer == "HAFITRA HARIANSYAH")
-  {
+  if (data.namamanajer == "HAFITRA HARIANSYAH") {
     nikmanajer = "865829";
     jabatanmanajer = "Mgr Wilayah Pekanbaru";
   }
-  if (data.namamanajer == "BUDI SANTOSO")
-  {
+  if (data.namamanajer == "BUDI SANTOSO") {
     nikmanajer = "885773";
     jabatanmanajer = "Project Mgr Area Pekanbaru";
   }
-  if (data.namamanajer == "EKA BANGKIT PRASTYA")
-  {
+  if (data.namamanajer == "EKA BANGKIT PRASTYA") {
     nikmanajer = "905962";
     jabatanmanajer = "Project Mgr Area Pekanbaru";
   }
   section.replaceText("<<NIK Manajer>>", nikmanajer);
   section.replaceText("<<Jabatan Manajer>>", jabatanmanajer);
+  
   // 2. Cari tabel HANYA di section ini
   const tables = section.getTables();
   
   if (tables.length > 0) {
     // Asumsi kita hanya peduli pada tabel pertama di section ini
-    const table = tables[0]; 
+    const table = tables[0];
     Logger.log("Table found in section: " + sectionType);
 
     // 3. Logika menambah baris Teknisi 2 - PENDEKATAN BARU
@@ -51,7 +48,7 @@ function processSection(section, data, hasTeknisi2) {
       Logger.log("Teknisi 2 data exists. Attempting to add row in " + sectionType);
       try {
         // PENDEKATAN SIMPLE: Copy template row dengan cara manual
-        const templateRow = table.getRow(1);
+        const templateRow = table.getRow(1); // Baris Teknisi 1 (index 1)
         
         if (templateRow) {
           // Buat baris baru dan isi manual
@@ -60,14 +57,25 @@ function processSection(section, data, hasTeknisi2) {
           // Pastikan newRow memiliki sel yang cukup
           const numCells = templateRow.getNumCells();
           for (let i = 0; i < numCells; i++) {
+            const templateCell = templateRow.getCell(i); // Ambil sel template
+            
             // Tambah sel jika diperlukan
+            let newCell;
             if (i >= newRow.getNumCells()) {
-              newRow.appendTableCell("");
+              newCell = newRow.appendTableCell("");
+            } else {
+              newCell = newRow.getCell(i);
             }
             
-            // Copy teks dari template
-            const cellText = templateRow.getCell(i).getText();
-            newRow.getCell(i).setText(cellText);
+            // --- INI SOLUSINYA ---
+            // 1. Copy attributes (termasuk border, font, bg color, dll)
+            const attributes = templateCell.getAttributes();
+            newCell.setAttributes(attributes);
+            // --- SELESAI SOLUSI ---
+
+            // 2. Copy teks dari template
+            const cellText = templateCell.getText();
+            newCell.setText(cellText);
           }
           
           // Sekarang ganti placeholder di baris baru
@@ -111,7 +119,6 @@ function processSection(section, data, hasTeknisi2) {
     section.replaceText("<<PSA Teknisi>>", data.psateknisi1 || "");
   }
 }
-
 /**
  * Fungsi validasi email sederhana
  */
