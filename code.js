@@ -5,15 +5,24 @@ function processSection(section, data, hasTeknisi2) {
 
   const sectionType = section.getType(); // Untuk logging
 
-  // 1. Ganti semua placeholder non-tabel di section ini
-  section.replaceText("<<Nomor Surat>>", data.nomorSurat);
-  section.replaceText("<<Tanggal Surat>>", data.tanggalSurat);
-  section.replaceText("<<Nama Hari>>", data.namaHari);
-  section.replaceText("<<Nama Manajer>>", data.namamanajer || "");
-  section.replaceText("<<Tujuan Tugas>>", data.tujuantugas || "");
-  section.replaceText("<<Tanggal Mulai>>", data.tanggalmulai || "");
-  section.replaceText("<<Tanggal Selesai>>", data.tanggalselesai || "");
-  section.replaceText("<<Lokasi Tugas>>", data.lokasitugas || "");
+  // pattern
+  const patternNomorSurat =  "\\<\\<\\s*" + "Nomor Surat" + "\\s*\\>\\>";
+  const patternTanggalSurat =  "\\<\\<\\s*" + "Tanggal Surat" + "\\s*\\>\\>";
+  const patternNamaHari =  "\\<\\<\\s*" + "Nama Hari" + "\\s*\\>\\>";
+  const patternNamaManajer =  "\\<\\<\\s*" + "Nama Manajer" + "\\s*\\>\\>";
+  const patternTujuanTugas =  "\\<\\<\\s*" + "Tujuan Tugas" + "\\s*\\>\\>";
+  const patternTanggalMulai =  "\\<\\<\\s*" + "Tanggal Mulai" + "\\s*\\>\\>";
+  const patternTanggalSelesai =  "\\<\\<\\s*" + "Tanggal Selesai" + "\\s*\\>\\>";
+  const patternLokasiTugas =  "\\<\\<\\s*" + "Lokasi Tugas" + "\\s*\\>\\>";
+  
+  section.replaceText(patternNomorSurat, data.nomorSurat);
+  section.replaceText(patternTanggalSurat, data.tanggalSurat);
+  section.replaceText(patternNamaHari, data.namaHari);
+  section.replaceText(patternNamaManajer, data.namamanajer || "");
+  section.replaceText(patternTujuanTugas, data.tujuantugas || "");
+  section.replaceText(patternTanggalMulai, data.tanggalmulai || "");
+  section.replaceText(patternTanggalSelesai, data.tanggalselesai || "");
+  section.replaceText(patternLokasiTugas, data.lokasitugas || "");
   let nikmanajer = "";
   let jabatanmanajer = "";
   if (data.namamanajer == "FX. SIGIT EKO PRAYOGO") {
@@ -32,8 +41,10 @@ function processSection(section, data, hasTeknisi2) {
     nikmanajer = "905962";
     jabatanmanajer = "Project Mgr Area Pekanbaru";
   }
-  section.replaceText("<<NIK Manajer>>", nikmanajer);
-  section.replaceText("<<Jabatan Manajer>>", jabatanmanajer);
+  const patternNikManajer = "\\<\\<\\s*" + "NIK Manajer" + "\\s*\\>\\>";
+  const patternJabatanManajer = "\\<\\<\\s*" + "Jabatan Manajer" + "\\s*\\>\\>";
+  section.replaceText(patternNikManajer, nikmanajer);
+  section.replaceText(patternJabatanManajer, jabatanmanajer);
   
   // 2. Cari tabel HANYA di section ini
   const tables = section.getTables();
@@ -77,12 +88,17 @@ function processSection(section, data, hasTeknisi2) {
             const cellText = templateCell.getText();
             newCell.setText(cellText);
           }
+
           
+          const patternNamaTeknisi =  "\\<\\<\\s*" + "Nama Teknisi 1" + "\\s*\\>\\>";
+          const patternNIKTeknisi =  "\\<\\<\\s*" + "NIK Teknisi 1" + "\\s*\\>\\>";
+          const patternPosisiTeknisi =  "\\<\\<\\s*" + "Posisi Teknisi 1" + "\\s*\\>\\>";
+          const patternPSATeknisi =  "\\<\\<\\s*" + "PSA Teknisi" + "\\s*\\>\\>";
           // Sekarang ganti placeholder di baris baru
-          newRow.replaceText("<<Nama Teknisi 1>>", data.namateknisi2 || "");
-          newRow.replaceText("<<NIK Teknisi 1>>", data.nikteknisi2 || "");
-          newRow.replaceText("<<Posisi Teknisi 1>>", data.posisiteknisi2 || "");
-          newRow.replaceText("<<PSA Teknisi>>", data.psateknisi2 || "");
+          newRow.replaceText(patternNamaTeknisi, data.namateknisi2 || "");
+          newRow.replaceText(patternNIKTeknisi, data.nikteknisi2 || "");
+          newRow.replaceText(patternPosisiTeknisi, data.posisiteknisi2 || "");
+          newRow.replaceText(patternPSATeknisi, data.psateknisi2 || "");
           newRow.getCell(0).setText("2"); // Set nomor urut
           
           Logger.log("Successfully added row for Teknisi 2 in " + sectionType);
