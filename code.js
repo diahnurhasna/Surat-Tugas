@@ -14,8 +14,8 @@ function processSection(section, data, hasTeknisi2) {
   section.replaceText("<<Tanggal Mulai>>", data.tanggalmulai || "");
   section.replaceText("<<Tanggal Selesai>>", data.tanggalselesai || "");
   section.replaceText("<<Lokasi Tugas>>", data.lokasitugas || "");
-  const nikmanajer = "";
-  const jabatanmanajer = "";
+  let nikmanajer = "";
+  let jabatanmanajer = "";
   if (namamanajer == "FX. SIGIT EKO PRAYOGO")
   {
     nikmanajer = "906535";
