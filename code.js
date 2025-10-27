@@ -43,7 +43,10 @@ function processSection(section, data, hasTeknisi2) {
   }
   const patternNikManajer = "\\<\\<\\s*" + "NIK Manajer" + "\\s*\\>\\>";
   const patternJabatanManajer = "\\<\\<\\s*" + "Jabatan Manajer" + "\\s*\\>\\>";
-  section.replaceText(patternNikManajer, nikmanajer);
+
+  const textNikManajer = "Nik. " + nikmanajer;
+  
+  section.replaceText(patternNikManajer, textNikManajer);
   section.replaceText(patternJabatanManajer, jabatanmanajer);
   
   // 2. Cari tabel HANYA di section ini
