@@ -16,22 +16,22 @@ function processSection(section, data, hasTeknisi2) {
   section.replaceText("<<Lokasi Tugas>>", data.lokasitugas || "");
   const nikmanajer = "";
   const jabatanmanajer = "";
-  if (namamanajer == "FX. SIGIT EKO PRAYOGO")
+  if (data.namamanajer == "FX. SIGIT EKO PRAYOGO")
   {
     nikmanajer = "906535";
     jabatanmanajer = "Mgr Shared Service Pekanbaru";
   }
-  if (namamanajer == "HAFITRA HARIANSYAH")
+  if (data.namamanajer == "HAFITRA HARIANSYAH")
   {
     nikmanajer = "865829";
     jabatanmanajer = "Mgr Wilayah Pekanbaru";
   }
-  if (namamanajer == "BUDI SANTOSO")
+  if (data.namamanajer == "BUDI SANTOSO")
   {
     nikmanajer = "885773";
     jabatanmanajer = "Project Mgr Area Pekanbaru";
   }
-  if (namamanajer == "EKA BANGKIT PRASTYA")
+  if (data.namamanajer == "EKA BANGKIT PRASTYA")
   {
     nikmanajer = "905962";
     jabatanmanajer = "Project Mgr Area Pekanbaru";
