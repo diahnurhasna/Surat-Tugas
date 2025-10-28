@@ -171,17 +171,66 @@ function onFormSubmit(e) {
       obj[key] = value;
     }
 
-    // Tambahkan data non-form ke 'obj' agar bisa dilempar ke helper
+    // Tambahkan data non-form ke 'obj'
     const today = new Date();
-    obj.nomorSurat = "353/UM.000/TA." + Utilities.formatDate(today, timeZone, "MMdd") + "/2025";
+
+    // --- PERBAIKAN: LOGIKA NOMOR SURAT (DISIMPAN DI SPREADSHEET) ---
+
+    // 1. Tentukan nama sheet dan sel untuk menyimpan nomor
+    const configSheetName = "Config"; // Nama sheet untuk menyimpan counter
+    const counterCellName = "A2";     // Sel tempat angka disimpan
+    const counterLabelName = "A1";    // Sel untuk label (penjelasan)
+    
+    // 2. Dapatkan spreadsheet dari event (e.source)
+    const spreadsheet = e.source;
+    
+    // 3. Coba dapatkan sheet 'Config'
+    let configSheet = spreadsheet.getSheetByName(configSheetName);
+
+    // 4. Jika sheet 'Config' tidak ada, buat baru dan inisialisasi
+    if (!configSheet) {
+      configSheet = spreadsheet.insertSheet(configSheetName);
+      // Beri label agar user tahu ini sel apa
+      configSheet.getRange(counterLabelName).setValue("NOMOR SURAT TERAKHIR:");
+      configSheet.getRange(counterCellName).setValue(0); // Mulai dari 0
+      configSheet.getRange(counterLabelName).setFontWeight("bold");
+      Logger.log("Sheet 'Config' berhasil dibuat.");
+    }
+
+    // 5. Dapatkan sel counter
+    const counterCell = configSheet.getRange(counterCellName);
+
+    // 6. Baca nomor terakhir dari sel
+    let lastNumber = parseInt(counterCell.getValue(), 10);
+
+    // 7. Jika selnya kosong atau bukan angka, anggap 0
+    if (isNaN(lastNumber) || lastNumber < 0) {
+      lastNumber = 0;
+    }
+
+    // 8. Tentukan nomor berikutnya (tambah 1)
+    let nextNumber = lastNumber + 1;
+    
+    // 9. Reset ke 1 jika sudah melebihi 1000
+    if (nextNumber > 1000) {
+      nextNumber = 1;
+    }
+
+    // 10. SIMPAN nomor baru ini kembali ke sel di spreadsheet
+    counterCell.setValue(nextNumber);
+
+    // 11. Format nomor surat untuk dokumen (misal: "0001", "0025", "1000")
+    const formattedNumber = nextNumber.toString().padStart(4, '0');
+    
+    // 12. Tetapkan nomor surat baru ke 'obj'
+    obj.nomorSurat = "353/UM.000/TA." + formattedNumber + "/2025";
+    // --- SELESAI PERBAIKAN ---
+
     obj.tanggalSurat = Utilities.formatDate(today, timeZone, "dd MMMM yyyy");
 
     // --- PERBAIKAN NAMA HARI (BAHASA INDONESIA) ---
-    // Buat array lookup untuk nama hari
     const namaHariIndonesia = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    // Dapatkan indeks hari (0 = Minggu, 1 = Senin, dst.)
     const dayIndex = today.getDay();
-    // Ambil nama hari dari array
     obj.namaHari = namaHariIndonesia[dayIndex];
     // --- SELESAI PERBAIKAN ---
 
@@ -232,24 +281,26 @@ function onFormSubmit(e) {
     Logger.log("FATAL ERROR in onFormSubmit: " + err.toString() + "\nStack: " + err.stack);
   }
 }
-
 /**
- * Fungsi helper untuk testing.
+ * FUNGSI HELPER: Untuk mereset nomor urut kembali ke 0.
+ * Jalankan fungsi ini secara manual dari editor skrip jika Anda ingin
+ * penomoran dimulai dari 1 lagi.
  */
-function testGenerate() {
+function resetNomorSurat() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getActiveSheet();
-  const lastRow = sheet.getLastRow();
-  const e = {
-    source: ss,
-    range: sheet.getRange(lastRow, 1)
-  };
-  onFormSubmit(e);
-}
-
-/**
- * Fungsi helper (tidak terpakai saat ini).
- */
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const configSheetName = "Config"; // Pastikan nama ini SAMA
+  const counterCellName = "A2";    // Pastikan sel ini SAMA
+  
+  let sheet = ss.getSheetByName(configSheetName);
+  
+  // Jika sheet-nya tidak ada, buatkan
+  if (!sheet) {
+     sheet = ss.insertSheet(configSheetName);
+     sheet.getRange("A1").setValue("NOMOR SURAT TERAKHIR:").setFontWeight("bold");
+     Logger.log("Sheet 'Config' dibuat.");
+  }
+  
+  // Set nilainya ke 0
+  sheet.getRange(counterCellName).setValue(0);
+  Logger.log("Nomor urut surat di sheet 'Config' sel '" + counterCellName + "' telah direset ke 0.");
 }
