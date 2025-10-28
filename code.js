@@ -6,15 +6,15 @@ function processSection(section, data, hasTeknisi2) {
   const sectionType = section.getType(); // Untuk logging
 
   // pattern
-  const patternNomorSurat =  "\\<\\<\\s*" + "Nomor Surat" + "\\s*\\>\\>";
-  const patternTanggalSurat =  "\\<\\<\\s*" + "Tanggal Surat" + "\\s*\\>\\>";
-  const patternNamaHari =  "\\<\\<\\s*" + "Nama Hari" + "\\s*\\>\\>";
-  const patternNamaManajer =  "\\<\\<\\s*" + "Nama Manajer" + "\\s*\\>\\>";
-  const patternTujuanTugas =  "\\<\\<\\s*" + "Tujuan Tugas" + "\\s*\\>\\>";
-  const patternTanggalMulai =  "\\<\\<\\s*" + "Tanggal Mulai" + "\\s*\\>\\>";
-  const patternTanggalSelesai =  "\\<\\<\\s*" + "Tanggal Selesai" + "\\s*\\>\\>";
-  const patternLokasiTugas =  "\\<\\<\\s*" + "Lokasi Tugas" + "\\s*\\>\\>";
-  
+  const patternNomorSurat = "\\<\\<\\s*" + "Nomor Surat" + "\\s*\\>\\>";
+  const patternTanggalSurat = "\\<\\<\\s*" + "Tanggal Surat" + "\\s*\\>\\>";
+  const patternNamaHari = "\\<\\<\\s*" + "Nama Hari" + "\\s*\\>\\>";
+  const patternNamaManajer = "\\<\\<\\s*" + "Nama Manajer" + "\\s*\\>\\>";
+  const patternTujuanTugas = "\\<\\<\\s*" + "Tujuan Tugas" + "\\s*\\>\\>";
+  const patternTanggalMulai = "\\<\\<\\s*" + "Tanggal Mulai" + "\\s*\\>\\>";
+  const patternTanggalSelesai = "\\<\\<\\s*" + "Tanggal Selesai" + "\\s*\\>\\>";
+  const patternLokasiTugas = "\\<\\<\\s*" + "Lokasi Tugas" + "\\s*\\>\\>";
+
   section.replaceText(patternNomorSurat, data.nomorSurat);
   section.replaceText(patternTanggalSurat, data.tanggalSurat);
   section.replaceText(patternNamaHari, data.namaHari);
@@ -45,13 +45,13 @@ function processSection(section, data, hasTeknisi2) {
   const patternJabatanManajer = "\\<\\<\\s*" + "Jabatan Manajer" + "\\s*\\>\\>";
 
   const textNikManajer = "Nik. " + nikmanajer;
-  
+
   section.replaceText(patternNikManajer, textNikManajer);
   section.replaceText(patternJabatanManajer, jabatanmanajer);
-  
+
   // 2. Cari tabel HANYA di section ini
   const tables = section.getTables();
-  
+
   if (tables.length > 0) {
     // Asumsi kita hanya peduli pada tabel pertama di section ini
     const table = tables[0];
@@ -61,57 +61,46 @@ function processSection(section, data, hasTeknisi2) {
     if (hasTeknisi2) {
       Logger.log("Teknisi 2 data exists. Attempting to add row in " + sectionType);
       try {
-        // PENDEKATAN SIMPLE: Copy template row dengan cara manual
-        const templateRow = table.getRow(1); // Baris Teknisi 1 (index 1)
-        
+        // Ambil baris template (Teknisi 1) di index 1
+        const templateRow = table.getRow(1);
+
         if (templateRow) {
-          // Buat baris baru dan isi manual
-          const newRow = table.appendTableRow();
           
-          // Pastikan newRow memiliki sel yang cukup
-          const numCells = templateRow.getNumCells();
-          for (let i = 0; i < numCells; i++) {
-            const templateCell = templateRow.getCell(i); // Ambil sel template
-            
-            // Tambah sel jika diperlukan
-            let newCell;
-            if (i >= newRow.getNumCells()) {
-              newCell = newRow.appendTableCell("");
-            } else {
-              newCell = newRow.getCell(i);
-            }
-            
-            // --- INI SOLUSINYA ---
-            // 1. Copy attributes (termasuk border, font, bg color, dll)
-            const attributes = templateCell.getAttributes();
-            newCell.setAttributes(attributes);
-            // --- SELESAI SOLUSI ---
+          // --- INI SOLUSI BARUNYA ---
+          // 1. Tentukan indeks untuk menyisipkan baris baru (di bawah baris template)
+          const insertIndex = table.getChildIndex(templateRow) + 1;
 
-            // 2. Copy teks dari template
-            const cellText = templateCell.getText();
-            newCell.setText(cellText);
-          }
+          // 2. Buat SALINAN (copy) dari baris template.
+          //    Ini akan menyalin SEMUA format (border, font, bg color, dll)
+          const newRow = table.insertTableRow(insertIndex, templateRow.copy());
+          // --- SELESAI SOLUSI ---
 
+          // 3. 'newRow' sekarang adalah salinan persis dari baris Teknisi 1.
+          //    Kita hanya perlu mengganti placeholder-nya dengan data Teknisi 2.
           
-          const patternNamaTeknisi =  "\\<\\<\\s*" + "Nama Teknisi 1" + "\\s*\\>\\>";
-          const patternNIKTeknisi =  "\\<\\<\\s*" + "NIK Teknisi 1" + "\\s*\\>\\>";
-          const patternPosisiTeknisi =  "\\<\\<\\s*" + "Posisi Teknisi 1" + "\\s*\\>\\>";
-          const patternPSATeknisi =  "\\<\\<\\s*" + "PSA Teknisi" + "\\s*\\>\\>";
-          // Sekarang ganti placeholder di baris baru
+          // Definisikan pattern untuk placeholder ASLI (Teknisi 1)
+          const patternNamaTeknisi = "\\<\\<\\s*" + "Nama Teknisi 1" + "\\s*\\>\\>";
+          const patternNIKTeknisi = "\\<\\<\\s*" + "NIK Teknisi 1" + "\\s*\\>\\>";
+          const patternPosisiTeknisi = "\\<\\<\\s*" + "Posisi Teknisi 1" + "\\s*\\>\\>";
+          const patternPSATeknisi = "\\<\\<\\s*" + "PSA Teknisi" + "\\s*\\>\\>";
+
+          // Ganti placeholder di baris BARU (newRow) dengan data Teknisi 2
           newRow.replaceText(patternNamaTeknisi, data.namateknisi2 || "");
           newRow.replaceText(patternNIKTeknisi, data.nikteknisi2 || "");
           newRow.replaceText(patternPosisiTeknisi, data.posisiteknisi2 || "");
           newRow.replaceText(patternPSATeknisi, data.psateknisi2 || "");
-          newRow.getCell(0).setText("2"); // Set nomor urut
           
-          Logger.log("Successfully added row for Teknisi 2 in " + sectionType);
+          // Set nomor urut secara manual
+          newRow.getCell(0).setText("2");
+
+          Logger.log("Successfully added AND formatted row for Teknisi 2 in " + sectionType);
         } else {
           Logger.log("Table found, but template row (Row 1) is missing in " + sectionType);
         }
       } catch (tableErr) {
         Logger.log("ERROR saat mencoba menambah baris tabel di " + sectionType + ": " + tableErr);
         
-        // FALLBACK: Coba pendekatan yang lebih sederhana
+        // FALLBACK: (Biarkan ini sebagai cadangan jika metode copy gagal)
         try {
           Logger.log("Trying ultra-simple method...");
           const newRow = table.appendTableRow();
@@ -129,7 +118,7 @@ function processSection(section, data, hasTeknisi2) {
         }
       }
     }
-    
+
     // 4. Ganti placeholder Teknisi 1 di section ini
     // Ini akan mengisi baris template asli
     section.replaceText("<<Nama Teknisi 1>>", data.namateknisi1 || "");
@@ -150,10 +139,8 @@ function isValidEmail(email) {
 /**
  * Fungsi utama yang dipicu saat Google Form disubmit.
  */
-function onFormSubmit(e) 
-{
-  try 
-  {
+function onFormSubmit(e) {
+  try {
     if (!e || !e.range) {
       Logger.log("Event object missing. Untuk testing jalankan testGenerate().");
       return;
@@ -188,15 +175,23 @@ function onFormSubmit(e)
     const today = new Date();
     obj.nomorSurat = "353/UM.000/TA." + Utilities.formatDate(today, timeZone, "MMdd") + "/2025";
     obj.tanggalSurat = Utilities.formatDate(today, timeZone, "dd MMMM yyyy");
-    obj.namaHari = Utilities.formatDate(today, timeZone, "EEEE"); 
+
+    // --- PERBAIKAN NAMA HARI (BAHASA INDONESIA) ---
+    // Buat array lookup untuk nama hari
+    const namaHariIndonesia = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+    // Dapatkan indeks hari (0 = Minggu, 1 = Senin, dst.)
+    const dayIndex = today.getDay();
+    // Ambil nama hari dari array
+    obj.namaHari = namaHariIndonesia[dayIndex];
+    // --- SELESAI PERBAIKAN ---
 
     Logger.log("Mapping: " + JSON.stringify(obj));
-    
+
     // --- Persiapan Dokumen ---
     const templateId = "1mIOrMHiCEVWccUOlCP5N6EPqUEq2w9W7e48drgf96qc";
     const folderId = "14MWia7aR8Og20886EFJEgXa4evo9YLN6";
 
-    const copyName = "Surat Tugas - " + (obj.namateknisi1 || "NoName"); 
+    const copyName = "Surat Tugas - " + (obj.namateknisi1 || "NoName");
     const docFileCopied = DriveApp.getFileById(templateId).makeCopy(copyName, DriveApp.getFolderById(folderId));
     const doc = DocumentApp.openById(docFileCopied.getId());
 
@@ -217,15 +212,15 @@ function onFormSubmit(e)
     const pdf = DriveApp.getFileById(doc.getId()).getAs("application/pdf");
     const pdfFile = DriveApp.getFolderById(folderId).createFile(pdf);
 
-    const emailTujuan = obj.emailteknisi; 
+    const emailTujuan = obj.emailteknisi;
     Logger.log("Email teknisi dari form: '" + emailTujuan + "'. Mengirim email...");
 
     // Validasi email
     if (emailTujuan && emailTujuan.trim() !== "" && isValidEmail(emailTujuan.trim())) {
       MailApp.sendEmail({
-        to: emailTujuan.trim(), 
+        to: emailTujuan.trim(),
         subject: "Approval Surat Tugas - " + (obj.namateknisi1 || "NoName"),
-        body: "Halo,\n\nBerikut terlampir surat tugas, silahkan di print dan minta ttd untuk approval.\n\nSalam.",
+        body: "Halo,\n\nBerikut terlampir surat tugas, silahkan print dan minta ttd approval.\n\nSalam.",
         attachments: [pdfFile]
       });
       Logger.log("Selesai: file dibuat dan email dikirim.");
